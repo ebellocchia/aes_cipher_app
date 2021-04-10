@@ -24,7 +24,7 @@
 import getopt, os, sys
 from enum import Enum, auto, unique
 from pathlib import Path
-from aes_cipher import FileDecrypter, FileEncrypter, FileDataEncodings, Logger
+from aes_cipher import FileDecrypter, FileEncrypter, FileDataEncodings, FileHmacError, FileDecryptError, Logger
 
 
 #
@@ -251,7 +251,7 @@ def RunApp(args):
                 args.GetValue(ArgumentTypes.ITR_NUM))
             file_encrypter.SaveTo(out_path, FileDataEncodings.BINARY if args.IsBinaryEncoding() else FileDataEncodings.BASE64)
 
-            print("Output file saved to: %s" % out_path)
+            print("Output file saved to: '%s'" % out_path)
 
     # Decrypt files
     elif args.IsDecryptMode():
@@ -260,15 +260,20 @@ def RunApp(args):
 
             print("Decrypting file: '%s'..." % curr_path)
 
-            file_decrypter = FileDecrypter(logger)
-            file_decrypter.Decrypt(
-                curr_path,
-                args.GetValue(ArgumentTypes.PASSWORDS),
-                args.GetValue(ArgumentTypes.SALT),
-                args.GetValue(ArgumentTypes.ITR_NUM))
-            file_decrypter.SaveTo(out_path)
+            try:
+                file_decrypter = FileDecrypter(logger)
+                file_decrypter.Decrypt(
+                    curr_path,
+                    args.GetValue(ArgumentTypes.PASSWORDS),
+                    args.GetValue(ArgumentTypes.SALT),
+                    args.GetValue(ArgumentTypes.ITR_NUM))
+                file_decrypter.SaveTo(out_path)
 
-            print("Output file saved to: %s" % out_path)
+                print("Output file saved to: '%s'" % out_path)
+            except FileHmacError:
+                print("ERROR: file HMAC is not valid '%s'" % curr_path)
+            except FileDecryptError:
+                print("ERROR: unable to decrypt file '%s'" % curr_path)
 
     # Output text
     print("Operation completed")
