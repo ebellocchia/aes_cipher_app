@@ -12,7 +12,7 @@ Just install the [aes_cipher](https://github.com/ebellocchia/aes_cipher) library
 
 Basic usage:
 
-    python aes_cipher_app.py -m <enc:dec> -p <password1,password2,...> -i <input_files_or_folder> -o <output_folder> [-s <salt>] [-t <itr_num>] [-e <bin:b64>] [-v] [-h]
+    python aes_cipher_app.py -m <enc:dec> -p <password1,password2,...> -i <input_files_or_folder> -o <output_folder> [-s <salt>] [-t <itr_num>] [-v] [-h]
 
 Parameters description:
 
@@ -24,7 +24,6 @@ Parameters description:
 |-o|--output|Output folder where the encrypted/decrypted files will be saved|
 |-s|--salt|Optional: custom salt for master key and IV derivation, otherwise the default salt "[]=?AeS_CiPhEr><()" will be used|
 |-t|--iteration|Optional: number of iteration for algorithm, otherwise the default value 524288 will be used|
-|-e|--encoding|Optional: only for encrypting, it allows to save the output as binary or base64. Possible values: *bin* (default) or *b64*|
 |-v|--verbose|Optional: enable verbose mode|
 |-h|--help|Optional: print usage and exit|
 
