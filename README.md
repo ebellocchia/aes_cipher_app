@@ -16,7 +16,7 @@ Basic usage:
 
 Parameters description:
 
-|Short name|Long name|Description>|
+|Short name|Long name|Description|
 |---|---|---|
 |-m|--mode|Operational mode: *enc* for encrypting, *dec* for decrypting|
 |-p|--password|Password used for encrypting/decrypting. It can be a single password or a list of passwords separated by a comma|
