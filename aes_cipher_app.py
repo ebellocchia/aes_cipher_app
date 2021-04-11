@@ -24,7 +24,7 @@
 import getopt, os, sys
 from enum import Enum, auto, unique
 from pathlib import Path
-from aes_cipher import FileDecrypter, FileEncrypter, FileDataEncodings, FileHmacError, FileDecryptError, Logger
+from aes_cipher import FileDecrypter, FileEncrypter, DataHmacError, DataDecryptError, Logger
 
 
 #
@@ -40,7 +40,6 @@ class ArgumentTypes(Enum):
     OUTPUT_PATH = auto(),
     SALT = auto(),
     ITR_NUM = auto(),
-    ENCODING = auto(),
     VERBOSE = auto(),
     HELP = auto(),
 
@@ -48,7 +47,6 @@ class ArgumentTypes(Enum):
 # Arguments
 class Arguments:
     MODES = ("dec", "enc")
-    ENCODINGS = ("bin", "b64")
 
     # Constructor
     def __init__(self):
@@ -95,14 +93,6 @@ class Arguments:
     def IsEncryptMode(self):
         return self.GetValue(ArgumentTypes.MODE) == self.MODES[1]
 
-    # Get if binary encoding
-    def IsBinaryEncoding(self):
-        return self.GetValue(ArgumentTypes.ENCODING) == self.ENCODINGS[0]
-
-    # Get if base64 encoding
-    def IsBase64Encoding(self):
-        return self.GetValue(ArgumentTypes.ENCODING) == self.ENCODINGS[1]
-
     # Get if arguments are valid
     def AreValid(self):
         return (self.GetValue(ArgumentTypes.MODE) in self.MODES)  and \
@@ -112,8 +102,7 @@ class Arguments:
                (
                  (self.GetValue(ArgumentTypes.ITR_NUM) is None) or
                  (self.GetValue(ArgumentTypes.ITR_NUM) > 0)
-               )                                                  and \
-               (self.GetValue(ArgumentTypes.ENCODING) in self.ENCODINGS)
+               )
 
     # Reset
     def __Reset(self):
@@ -124,7 +113,6 @@ class Arguments:
             ArgumentTypes.OUTPUT_PATH: None,
             ArgumentTypes.SALT: None,
             ArgumentTypes.ITR_NUM: None,
-            ArgumentTypes.ENCODING: self.ENCODINGS[0],
             ArgumentTypes.VERBOSE: False,
             ArgumentTypes.HELP: False,
         }
@@ -154,7 +142,7 @@ class ArgumentsParser:
 
         # Parse arguments
         try:
-            opts, _ = getopt.getopt(argv, "m:p:i:o:e:s:t:vh", ["mode=", "password=", "input=", "output=", "encoding=", "salt=", "iteration=", "verbose", "help"])
+            opts, _ = getopt.getopt(argv, "m:p:i:o:s:t:vh", ["mode=", "password=", "input=", "output=", "salt=", "iteration=", "verbose", "help"])
         # Handle error
         except getopt.GetoptError:
             return
@@ -169,8 +157,6 @@ class ArgumentsParser:
                 self.args.SetValue(arg, ArgumentTypes.INPUT_PATHS)
             elif opt in ("-o", "--output"):
                 self.args.SetValue(arg, ArgumentTypes.OUTPUT_PATH)
-            elif opt in ("-e", "--encoding"):
-                self.args.SetValue(arg.lower(), ArgumentTypes.ENCODING)
             elif opt in ("-s", "--salt"):
                 self.args.SetValue(arg, ArgumentTypes.SALT)
             elif opt in ("-t", "--iteration"):
@@ -196,8 +182,8 @@ Description:
     Simple utility for encrypting/decrypting files using AES256-CBC.
 
 Usage:
-    Encrypt: aes_cipher_app.py -m enc -p <PASSWORDS> -i <INPUT_FILE_OR_DIRECTORY> -o <OUTPUT_DIRECTORY>  [-s <SALT>] [-t <ITR_NUM>] [-e <bin:b64>] [-v]
-    Decrypt: aes_cipher_app.py -m dec -p <PASSWORDS> -i <INPUT_FILE_OR_DIRECTORY> -o <OUTPUT_DIRECTORY>  [-s <SALT>] [-t <ITR_NUM>] [-e <bin:b64>] [-v]
+    Encrypt: aes_cipher_app.py -m enc -p <PASSWORDS> -i <INPUT_FILE_OR_DIRECTORY> -o <OUTPUT_DIRECTORY> [-s <SALT>] [-t <ITR_NUM>] [-v]
+    Decrypt: aes_cipher_app.py -m dec -p <PASSWORDS> -i <INPUT_FILE_OR_DIRECTORY> -o <OUTPUT_DIRECTORY> [-s <SALT>] [-t <ITR_NUM>] [-v]
 
 Parameters:
     -m, --mode : operation mode, enc for encrypting, dec for decrypting.
@@ -206,10 +192,8 @@ Parameters:
     -o, --output : output folder where the encrypted/decrypted files will be saved.
     -s, --salt : (optional) specify a custom salt for master key and IV derivation, otherwise the default salt "[]=?AeS_CiPhEr><()" will be used.
     -t, --iteration : (optional) specify the number of iteration for algorithm, otherwise the default value 524288 will be used.
-    -e, --encoding : (optional) only for encrypting, it allows to save the output as binary or base64. Possible values: bin (default) or b64.
     -v, --verbose : (optional) enable verbose mode.
 """
-
     print(usage_str)
 
 
@@ -249,7 +233,7 @@ def RunApp(args):
                 args.GetValue(ArgumentTypes.PASSWORDS),
                 args.GetValue(ArgumentTypes.SALT),
                 args.GetValue(ArgumentTypes.ITR_NUM))
-            file_encrypter.SaveTo(out_path, FileDataEncodings.BINARY if args.IsBinaryEncoding() else FileDataEncodings.BASE64)
+            file_encrypter.SaveTo(out_path)
 
             print("Output file saved to: '%s'" % out_path)
 
@@ -270,9 +254,9 @@ def RunApp(args):
                 file_decrypter.SaveTo(out_path)
 
                 print("Output file saved to: '%s'" % out_path)
-            except FileHmacError:
+            except DataHmacError:
                 print("ERROR: file HMAC is not valid '%s'" % curr_path)
-            except FileDecryptError:
+            except DataDecryptError:
                 print("ERROR: unable to decrypt file '%s'" % curr_path)
 
     # Output text
