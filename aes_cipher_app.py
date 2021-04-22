@@ -101,14 +101,14 @@ class Arguments:
 
     # Get if arguments are valid
     def AreValid(self) -> bool:
-        return (self.GetValue(ArgumentTypes.MODE) in self.MODES) and \
-               (self.GetValue(ArgumentTypes.PASSWORDS) != "") and \
-               (self.GetValue(ArgumentTypes.INPUT_PATHS) is not None) and \
-               (self.GetValue(ArgumentTypes.OUTPUT_PATH) is not None) and \
-               (
+        return ((self.GetValue(ArgumentTypes.MODE) in self.MODES) and
+                (self.GetValue(ArgumentTypes.PASSWORDS) != "") and
+                (self.GetValue(ArgumentTypes.INPUT_PATHS) is not None) and
+                (self.GetValue(ArgumentTypes.OUTPUT_PATH) is not None) and
+                (
                  (self.GetValue(ArgumentTypes.ITR_NUM) is None) or
                  (self.GetValue(ArgumentTypes.ITR_NUM) > 0)
-               )
+                ))
 
     # Reset
     def __Reset(self) -> None:
@@ -206,7 +206,7 @@ Parameters:
 
 # Run application
 def RunApp(args: Arguments) -> None:
-    ENC_SUFFIX: str = "_enc"
+    enc_suffix: str = "_enc"
 
     # Get input files
     input_paths = args.GetValue(ArgumentTypes.INPUT_PATHS)
@@ -230,7 +230,7 @@ def RunApp(args: Arguments) -> None:
     # Encrypt files
     if args.IsEncryptMode():
         for curr_path in input_paths:
-            out_path = output_path / curr_path.with_stem(curr_path.stem + ENC_SUFFIX).name
+            out_path = output_path / curr_path.with_stem(curr_path.stem + enc_suffix).name
 
             print("Encrypting file: '%s'..." % curr_path)
 
@@ -247,7 +247,7 @@ def RunApp(args: Arguments) -> None:
     # Decrypt files
     elif args.IsDecryptMode():
         for curr_path in input_paths:
-            out_path = output_path / curr_path.with_stem(curr_path.stem.replace(ENC_SUFFIX, "")).name
+            out_path = output_path / curr_path.with_stem(curr_path.stem.replace(enc_suffix, "")).name
 
             print("Decrypting file: '%s'..." % curr_path)
 
