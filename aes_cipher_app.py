@@ -21,9 +21,12 @@
 #
 # Imports
 #
-import getopt, os, sys
+import getopt
+import os
+import sys
 from enum import Enum, auto, unique
 from pathlib import Path
+from typing import Any, List, Tuple
 from aes_cipher import FileDecrypter, FileEncrypter, DataHmacError, DataDecryptError, Logger
 
 
@@ -46,20 +49,23 @@ class ArgumentTypes(Enum):
 
 # Arguments
 class Arguments:
-    MODES = ("dec", "enc")
+    MODES: Tuple[str, str] = ("dec", "enc")
 
     # Constructor
-    def __init__(self):
+    def __init__(self) -> None:
         self.__Reset()
 
     # Get argument value
-    def GetValue(self, arg_type):
+    def GetValue(self,
+                 arg_type: ArgumentTypes) -> Any:
         if not isinstance(arg_type, ArgumentTypes):
             raise TypeError("Invalid argument type")
         return self.args_val[arg_type]
 
     # Set argument value
-    def SetValue(self, value, arg_type):
+    def SetValue(self,
+                 value: Any,
+                 arg_type: ArgumentTypes) -> None:
         if not isinstance(arg_type, ArgumentTypes):
             raise TypeError("Invalid argument type")
 
@@ -78,34 +84,34 @@ class Arguments:
             self.args_val[arg_type] = value
 
     # Get if verbose
-    def IsVerbose(self):
+    def IsVerbose(self) -> bool:
         return self.GetValue(ArgumentTypes.VERBOSE)
 
-    # Get if need help
-    def NeedHelp(self):
+    # Get if help is needed
+    def IsHelpNeeded(self) -> bool:
         return self.GetValue(ArgumentTypes.HELP)
 
     # Get if decrypt mode
-    def IsDecryptMode(self):
+    def IsDecryptMode(self) -> bool:
         return self.GetValue(ArgumentTypes.MODE) == self.MODES[0]
 
     # Get if encrypt mode
-    def IsEncryptMode(self):
+    def IsEncryptMode(self) -> bool:
         return self.GetValue(ArgumentTypes.MODE) == self.MODES[1]
 
     # Get if arguments are valid
-    def AreValid(self):
-        return (self.GetValue(ArgumentTypes.MODE) in self.MODES)  and \
-               (self.GetValue(ArgumentTypes.PASSWORDS)  != "")    and \
-               (self.GetValue(ArgumentTypes.INPUT_PATHS) != None) and \
-               (self.GetValue(ArgumentTypes.OUTPUT_PATH) != None) and \
+    def AreValid(self) -> bool:
+        return (self.GetValue(ArgumentTypes.MODE) in self.MODES) and \
+               (self.GetValue(ArgumentTypes.PASSWORDS) != "") and \
+               (self.GetValue(ArgumentTypes.INPUT_PATHS) is not None) and \
+               (self.GetValue(ArgumentTypes.OUTPUT_PATH) is not None) and \
                (
                  (self.GetValue(ArgumentTypes.ITR_NUM) is None) or
                  (self.GetValue(ArgumentTypes.ITR_NUM) > 0)
                )
 
     # Reset
-    def __Reset(self):
+    def __Reset(self) -> None:
         self.args_val = {
             ArgumentTypes.MODE: "",
             ArgumentTypes.PASSWORDS: "",
@@ -119,10 +125,10 @@ class Arguments:
 
     # Parse input files
     @staticmethod
-    def __ParseInputPaths(value):
+    def __ParseInputPaths(value: str) -> List[Path]:
         curr_path = Path(value)
         if curr_path.is_dir():
-            files = [p for p in curr_path.iterdir() if p.is_file() and not p.name.startswith(".") ]
+            files = [p for p in curr_path.iterdir() if p.is_file() and not p.name.startswith(".")]
         else:
             files = [Path(p) for p in value.split(",") if Path(p).is_file()]
 
@@ -132,11 +138,12 @@ class Arguments:
 # Argument parser
 class ArgumentsParser:
     # Constructor
-    def __init__(self):
+    def __init__(self) -> None:
         self.args = None
 
     # Parse arguments
-    def Parse(self, argv):
+    def Parse(self,
+              argv: List[str]) -> None:
         # Create arguments
         self.args = Arguments()
 
@@ -167,7 +174,7 @@ class ArgumentsParser:
                 self.args.SetValue(True, ArgumentTypes.HELP)
 
     # Get arguments
-    def GetArguments(self):
+    def GetArguments(self) -> Arguments:
         return self.args
 
 
@@ -176,7 +183,7 @@ class ArgumentsParser:
 #
 
 # Print usage
-def PrintUsage():
+def PrintUsage() -> None:
     usage_str = """
 Description:
     Simple utility for encrypting/decrypting files using AES256-CBC.
@@ -198,8 +205,8 @@ Parameters:
 
 
 # Run application
-def RunApp(args):
-    ENC_SUFFIX = "_enc"
+def RunApp(args: Arguments) -> None:
+    ENC_SUFFIX: str = "_enc"
 
     # Get input files
     input_paths = args.GetValue(ArgumentTypes.INPUT_PATHS)
@@ -264,7 +271,7 @@ def RunApp(args):
 
 
 # Main
-def main(argv):
+def main(argv: List[str]) -> None:
     # Get arguments
     args_parser = ArgumentsParser()
     args_parser.Parse(argv)
@@ -276,7 +283,7 @@ def main(argv):
         sys.exit(1)
 
     # Print help if needed
-    if args.NeedHelp():
+    if args.IsHelpNeeded():
         PrintUsage()
         sys.exit(0)
 
