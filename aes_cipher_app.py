@@ -26,7 +26,7 @@ import os
 import sys
 from enum import Enum, auto, unique
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any, Dict, List, Tuple
 from aes_cipher import FileDecrypter, FileEncrypter, DataHmacError, DataDecryptError, Logger
 
 
@@ -51,9 +51,11 @@ class ArgumentTypes(Enum):
 class Arguments:
     MODES: Tuple[str, str] = ("dec", "enc")
 
+    args_val: Dict[ArgumentTypes, Any]
+
     # Constructor
     def __init__(self) -> None:
-        self.__Reset()
+        self.Reset()
 
     # Get argument value
     def GetValue(self,
@@ -111,7 +113,7 @@ class Arguments:
                 ))
 
     # Reset
-    def __Reset(self) -> None:
+    def Reset(self) -> None:
         self.args_val = {
             ArgumentTypes.MODE: "",
             ArgumentTypes.PASSWORDS: "",
@@ -139,13 +141,13 @@ class Arguments:
 class ArgumentsParser:
     # Constructor
     def __init__(self) -> None:
-        self.args = None
+        self.args = Arguments()
 
     # Parse arguments
     def Parse(self,
               argv: List[str]) -> None:
-        # Create arguments
-        self.args = Arguments()
+        # Reset arguments
+        self.args.Reset()
 
         # Parse arguments
         try:
