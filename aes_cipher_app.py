@@ -22,7 +22,6 @@
 # Imports
 #
 import getopt
-import os
 import sys
 from enum import Enum, auto, unique
 from pathlib import Path
@@ -139,6 +138,9 @@ class Arguments:
 
 # Argument parser
 class ArgumentsParser:
+
+    args: Arguments
+
     # Constructor
     def __init__(self) -> None:
         self.args = Arguments()
