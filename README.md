@@ -1,6 +1,6 @@
 # AES Cipher application
 
-**NOTE:** sample app moved to the [aes_cipher](https://github.com/ebellocchia/aes_cipher) repository. This is no longer maintained.
+**NOTE: sample app moved to the [aes_cipher](https://github.com/ebellocchia/aes_cipher) repository. This is no longer maintained.**
 
 ## Introduction
 
