@@ -1,5 +1,7 @@
 # AES Cipher application
 
+**NOTE:** sample app moved to the [aes_cipher](https://github.com/ebellocchia/aes_cipher) repository. This is no longer maintained.
+
 ## Introduction
 
 Simple application based on my [aes_cipher](https://github.com/ebellocchia/aes_cipher) library.
